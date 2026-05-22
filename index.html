@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Chloe's Counting Garden</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800;900&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/js-confetti@0.12.0/dist/js-confetti.browser.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(ellipse at 50% 80%, #c8f5c0, #e8fde4 40%, #f0fff0 80%);
+      touch-action: manipulation;
+    }
+
+    /* ===== BACKGROUND DECORATIONS ===== */
+    .sun {
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      width: 70px;
+      height: 70px;
+      background: radial-gradient(circle, #FFD700, #FFA500);
+      border-radius: 50%;
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 0 80px rgba(255, 165, 0, 0.3);
+      animation: sun-glow 3s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    @keyframes sun-glow {
+      0%, 100% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 0 80px rgba(255, 165, 0, 0.3); }
+      50% { box-shadow: 0 0 60px rgba(255, 215, 0, 0.8), 0 0 100px rgba(255, 165, 0, 0.4); }
+    }
+
+    .cloud {
+      position: fixed;
+      background: white;
+      border-radius: 50px;
+      opacity: 0.7;
+      z-index: 0;
+    }
+
+    .cloud-1 {
+      width: 120px;
+      height: 40px;
+      top: 60px;
+      left: -120px;
+      animation: cloud-drift 25s linear infinite;
+    }
+
+    .cloud-2 {
+      width: 90px;
+      height: 30px;
+      top: 100px;
+      left: -90px;
+      animation: cloud-drift 35s linear infinite 10s;
+    }
+
+    .cloud-3 {
+      width: 100px;
+      height: 35px;
+      top: 40px;
+      left: -100px;
+      animation: cloud-drift 30s linear infinite 18s;
+    }
+
+    @keyframes cloud-drift {
+      from { transform: translateX(0); }
+      to { transform: translateX(calc(100vw + 200px)); }
+    }
+
+    .bee {
+      position: fixed;
+      font-size: 28px;
+      z-index: 0;
+      animation: bee-fly 12s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes bee-fly {
+      0%   { top: 40%; left: 20%; }
+      25%  { top: 25%; left: 60%; }
+      50%  { top: 50%; left: 75%; }
+      75%  { top: 35%; left: 40%; }
+      100% { top: 40%; left: 20%; }
+    }
+
+    .grass {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: linear-gradient(to top, #4CAF50, #66BB6A, transparent);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ===== TITLE SCREEN ===== */
+    #title-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      background: radial-gradient(ellipse at 50% 80%, #c8f5c0, #e8fde4 40%, #f0fff0 80%);
+    }
+
+    #title-screen h1 {
+      font-family: 'Baloo 2', cursive;
+      font-size: clamp(2rem, 8vw, 3.5rem);
+      color: #2E7D32;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    #title-screen .subtitle {
+      font-size: clamp(1rem, 4vw, 1.4rem);
+      color: #558B2F;
+      margin-bottom: 40px;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    .start-btn {
+      font-family: 'Baloo 2', cursive;
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      padding: 20px 50px;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #FF6B8A, #FF9F45);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(255, 107, 138, 0.4);
+      animation: start-bounce 2s ease-in-out infinite;
+      min-width: 200px;
+      min-height: 80px;
+    }
+
+    .start-btn:active {
+      transform: scale(0.95);
+    }
+
+    @keyframes start-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .title-butterfly {
+      position: absolute;
+      font-size: 2rem;
+      animation: title-float 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .title-butterfly:nth-child(1) { top: 15%; left: 10%; animation-delay: 0s; }
+    .title-butterfly:nth-child(2) { top: 20%; right: 15%; animation-delay: 1s; }
+    .title-butterfly:nth-child(3) { bottom: 25%; left: 15%; animation-delay: 2s; }
+    .title-butterfly:nth-child(4) { bottom: 20%; right: 10%; animation-delay: 0.5s; }
+
+    @keyframes title-float {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+
+    /* ===== GAME SCREEN ===== */
+    #game-screen {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 10;
+    }
+
+    #game-screen.active {
+      display: block;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 15px;
+      z-index: 20;
+    }
+
+    .top-bar .game-title {
+      font-family: 'Baloo 2', cursive;
+      font-size: clamp(0.9rem, 3vw, 1.3rem);
+      color: #2E7D32;
+    }
+
+    .stars-display {
+      display: flex;
+      gap: 1px;
+      font-size: clamp(0.6rem, 2vw, 0.9rem);
+      flex-wrap: wrap;
+      max-width: 50%;
+      justify-content: flex-end;
+    }
+
+    .star {
+      opacity: 0.3;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .star.earned {
+      opacity: 1;
+      animation: star-pop 0.4s ease-out;
+    }
+
+    @keyframes star-pop {
+      0% { transform: scale(0); }
+      60% { transform: scale(1.4); }
+      100% { transform: scale(1); }
+    }
+
+    /* Garden Area */
+    .garden {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      right: 0;
+      bottom: 80px;
+    }
+
+    /* Flower Bud */
+    .flower {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      transform: translate(-50%, -50%);
+      z-index: 15;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .flower.bud {
+      background: linear-gradient(135deg, #81C784, #4CAF50);
+      border: 4px solid #388E3C;
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .flower .number {
+      font-family: 'Baloo 2', cursive;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      line-height: 1;
+    }
+
+    /* Bloomed State */
+    .flower.bloomed {
+      border-color: transparent;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      animation: bloom 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+    }
+
+    .flower.bloomed .number {
+      color: white;
+    }
+
+    .flower.bloomed .petals {
+      display: block;
+    }
+
+    /* Petals (hidden by default, shown when bloomed) */
+    .petals {
+      display: none;
+      position: absolute;
+      inset: -15px;
+      pointer-events: none;
+    }
+
+    .petal {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 50% 50% 50% 0;
+      opacity: 0.7;
+    }
+
+    .petal:nth-child(1) { top: -5px; left: 50%; transform: translateX(-50%) rotate(0deg); }
+    .petal:nth-child(2) { top: 10px; right: -5px; transform: rotate(72deg); }
+    .petal:nth-child(3) { bottom: 10px; right: 5px; transform: rotate(144deg); }
+    .petal:nth-child(4) { bottom: 10px; left: 5px; transform: rotate(216deg); }
+    .petal:nth-child(5) { top: 10px; left: -5px; transform: rotate(288deg); }
+
+    @keyframes bloom {
+      0%   { transform: translate(-50%, -50%) scale(0.3) rotate(-20deg); opacity: 0.5; }
+      60%  { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); }
+      80%  { transform: translate(-50%, -50%) scale(0.95) rotate(-2deg); }
+      100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    /* Shake Animation */
+    .flower.shake {
+      animation: shake 0.6s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+      20%      { transform: translate(-50%, -50%) translateX(-10px) rotate(-5deg); }
+      40%      { transform: translate(-50%, -50%) translateX(10px) rotate(5deg); }
+      60%      { transform: translate(-50%, -50%) translateX(-6px); }
+      80%      { transform: translate(-50%, -50%) translateX(6px); }
+    }
+
+    /* Hint Pulse */
+    .flower.hinting {
+      animation: hint-pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes hint-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.6); }
+      50%      { box-shadow: 0 0 0 18px rgba(255, 215, 0, 0); }
+    }
+
+    .hint-star {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.5rem;
+      animation: hint-star-bounce 1s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes hint-star-bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-10px); }
+    }
+
+    /* Butterfly Float */
+    .butterfly-float {
+      position: absolute;
+      font-size: 1.8rem;
+      pointer-events: none;
+      animation: butterfly-up 1.5s ease-out forwards;
+      z-index: 25;
+    }
+
+    @keyframes butterfly-up {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+      50%  { opacity: 1; transform: translateY(-40px) rotate(15deg); }
+      100% { opacity: 0; transform: translateY(-80px) rotate(-10deg); }
+    }
+
+    /* Bottom Bar / Hint Pill */
+    .bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .hint-pill {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 40px;
+      padding: 10px 30px;
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(1rem, 4vw, 1.3rem);
+      font-weight: 700;
+      color: #333;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hint-pill .next-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #FF6B8A, #FF9F45);
+      border-radius: 50%;
+      color: white;
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.3rem;
+      font-weight: 900;
+    }
+
+    /* ===== CELEBRATION OVERLAY ===== */
+    #celebration {
+      position: fixed;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.92);
+      z-index: 200;
+      animation: fade-in 0.8s ease-out;
+    }
+
+    #celebration.active {
+      display: flex;
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #celebration h2 {
+      font-family: 'Baloo 2', cursive;
+      font-size: clamp(1.8rem, 7vw, 3rem);
+      color: #2E7D32;
+      text-align: center;
+      margin-bottom: 10px;
+      animation: celebration-text 1s ease-out;
+    }
+
+    @keyframes celebration-text {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    #celebration .sub-text {
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      color: #558B2F;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    #celebration .win-stars {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      letter-spacing: 2px;
+    }
+
+    /* Present Card */
+    .present-box {
+      margin-bottom: 20px;
+    }
+
+    .present-card {
+      border-radius: 20px;
+      padding: 20px 30px;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      animation: present-appear 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+      max-width: 320px;
+    }
+
+    .present-emoji {
+      font-size: clamp(3rem, 12vw, 5rem);
+      margin-bottom: 10px;
+      animation: present-bounce 1.5s ease-in-out infinite;
+    }
+
+    .present-title {
+      font-family: 'Baloo 2', cursive;
+      font-size: clamp(1.2rem, 5vw, 1.8rem);
+      color: #6A1B9A;
+      margin-bottom: 5px;
+    }
+
+    .present-message {
+      font-size: clamp(0.85rem, 3.5vw, 1.1rem);
+      color: #555;
+      line-height: 1.4;
+    }
+
+    @keyframes present-appear {
+      0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+      60% { transform: scale(1.1) rotate(3deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    @keyframes present-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .play-again-btn {
+      font-family: 'Baloo 2', cursive;
+      font-size: clamp(1.3rem, 4vw, 1.6rem);
+      padding: 15px 40px;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #7FE07F, #4CAF50);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+      animation: start-bounce 2s ease-in-out infinite;
+      min-width: 180px;
+      min-height: 60px;
+    }
+
+    .play-again-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Sway animation for bloomed flowers during celebration */
+    .flower.sway {
+      animation: sway 2s ease-in-out infinite;
+    }
+
+    @keyframes sway {
+      0%, 100% { transform: translate(-50%, -50%) rotate(-3deg); }
+      50% { transform: translate(-50%, -50%) rotate(3deg); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 500px) {
+      .flower {
+        width: 70px;
+        height: 70px;
+      }
+      .flower .number {
+        font-size: 1.6rem;
+      }
+      .sun {
+        width: 50px;
+        height: 50px;
+      }
+    }
+
+    @media (min-width: 501px) {
+      .flower {
+        width: 85px;
+        height: 85px;
+      }
+      .flower .number {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Decorations -->
+  <div class="sun"></div>
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+  <div class="bee">🐝</div>
+  <div class="grass"></div>
+
+  <!-- Title Screen -->
+  <div id="title-screen">
+    <div class="title-butterfly">🦋</div>
+    <div class="title-butterfly">🦋</div>
+    <div class="title-butterfly">🦋</div>
+    <div class="title-butterfly">🦋</div>
+    <h1>🌸 Chloe's Counting Garden</h1>
+    <p class="subtitle">Tap the flowers 1, 2, 3… all the way to 20!</p>
+    <button class="start-btn" id="start-btn">START 🌸</button>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="game-screen">
+    <div class="top-bar">
+      <span class="game-title">🌸 Chloe's Counting Garden</span>
+      <div class="stars-display" id="stars-display"></div>
+    </div>
+    <div class="garden" id="garden"></div>
+    <div class="bottom-bar">
+      <div class="hint-pill">
+        <span>Next: tap</span>
+        <span class="next-number" id="next-number">1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Celebration Overlay -->
+  <div id="celebration">
+    <h2>You did it, Chloe! 🎉</h2>
+    <p class="sub-text">You counted all the way to 20!</p>
+    <div class="win-stars" id="win-stars"></div>
+    <div class="present-box" id="present-box"></div>
+    <button class="play-again-btn" id="play-again-btn">Play Again 🌸</button>
+  </div>
+
+  <script>
+    // ===== GAME STATE =====
+    const STATE = { TITLE: 'title', PLAYING: 'playing', CELEBRATING: 'celebrating' };
+    let gameState = STATE.TITLE;
+    let currentTarget = 1;
+    let flowers = [];
+    let hintTimer = null;
+    let audioCtx = null;
+    let jsConfetti = null;
+
+    // ===== CONSTANTS =====
+    const MAX_NUMBER = 20;
+
+    const POSITIONS = [
+      { x: 12, y: 10 }, { x: 35, y: 8 },  { x: 58, y: 12 }, { x: 82, y: 8 },
+      { x: 8, y: 30 },  { x: 28, y: 28 }, { x: 50, y: 32 }, { x: 72, y: 26 }, { x: 92, y: 30 },
+      { x: 15, y: 48 }, { x: 38, y: 50 }, { x: 62, y: 46 }, { x: 85, y: 50 },
+      { x: 8, y: 68 },  { x: 30, y: 66 }, { x: 52, y: 70 }, { x: 75, y: 65 }, { x: 92, y: 68 },
+      { x: 25, y: 85 }, { x: 65, y: 87 }
+    ];
+
+    const FLOWER_COLORS = {
+      1: '#FF6B8A', 2: '#FF9F45', 3: '#FFD700', 4: '#7FE07F', 5: '#4FC3F7',
+      6: '#7C83FD', 7: '#CE93D8', 8: '#F48FB1', 9: '#80DEEA', 10: '#FFCC80',
+      11: '#FF8A65', 12: '#AED581', 13: '#4DD0E1', 14: '#BA68C8', 15: '#FFB74D',
+      16: '#81D4FA', 17: '#F06292', 18: '#A5D6A7', 19: '#FFE082', 20: '#EF5350'
+    };
+
+    const NUMBER_WORDS = ['', 'One', 'Two', 'Three', 'Four', 'Five',
+                          'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+                          'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen',
+                          'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty'];
+
+    const PRAISE = ['Great!', 'Amazing!', 'Yes!', 'Wonderful!', 'Perfect!',
+                    'Fantastic!', 'Super!', 'Brilliant!', 'Awesome!', 'Hooray!'];
+
+    // ===== DOM REFS =====
+    const titleScreen = document.getElementById('title-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const garden = document.getElementById('garden');
+    const nextNumberEl = document.getElementById('next-number');
+    const starsDisplay = document.getElementById('stars-display');
+    const celebration = document.getElementById('celebration');
+    const startBtn = document.getElementById('start-btn');
+    const playAgainBtn = document.getElementById('play-again-btn');
+
+    // ===== AUDIO =====
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playCorrect(noteIndex) {
+      if (!audioCtx) return;
+      const notes = [262, 294, 330, 349, 392, 440, 494, 523, 587, 659];
+      const freq = notes[noteIndex % notes.length];
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.5);
+    }
+
+    function playWrong() {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function playWin() {
+      if (!audioCtx) return;
+      const notes = [523, 587, 659, 784, 880];
+      notes.forEach((freq, i) => {
+        setTimeout(() => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.6);
+        }, i * 120);
+      });
+    }
+
+    // ===== SPEECH =====
+    function sayNumber(n) {
+      if (!('speechSynthesis' in window)) return;
+      const utter = new SpeechSynthesisUtterance(NUMBER_WORDS[n]);
+      utter.rate = 0.85;
+      utter.pitch = 1.2;
+      speechSynthesis.speak(utter);
+    }
+
+    function sayPraise() {
+      if (!('speechSynthesis' in window)) return;
+      const phrase = PRAISE[Math.floor(Math.random() * PRAISE.length)];
+      const utter = new SpeechSynthesisUtterance(phrase);
+      utter.rate = 0.9;
+      utter.pitch = 1.3;
+      setTimeout(() => speechSynthesis.speak(utter), 400);
+    }
+
+    function sayTryAgain(lastCorrect) {
+      if (!('speechSynthesis' in window)) return;
+      const msg = lastCorrect > 0
+        ? `Try again! What comes after ${NUMBER_WORDS[lastCorrect]}?`
+        : 'Try again! Start with one!';
+      const utter = new SpeechSynthesisUtterance(msg);
+      utter.rate = 0.85;
+      utter.pitch = 1.1;
+      speechSynthesis.speak(utter);
+    }
+
+    function sayWin() {
+      if (!('speechSynthesis' in window)) return;
+      const utter = new SpeechSynthesisUtterance(
+        "Amazing! You counted to twenty! You're a superstar Chloe!"
+      );
+      utter.rate = 0.85;
+      utter.pitch = 1.2;
+      setTimeout(() => speechSynthesis.speak(utter), 800);
+    }
+
+    // ===== HINT SYSTEM =====
+    function resetHintTimer() {
+      clearTimeout(hintTimer);
+      // Remove existing hints
+      document.querySelectorAll('.flower.hinting').forEach(f => {
+        f.classList.remove('hinting');
+        const star = f.querySelector('.hint-star');
+        if (star) star.remove();
+      });
+
+      if (gameState !== STATE.PLAYING) return;
+
+      hintTimer = setTimeout(() => {
+        if (gameState !== STATE.PLAYING) return;
+        const targetFlower = flowers.find(f => f.number === currentTarget);
+        if (targetFlower && targetFlower.element) {
+          targetFlower.element.classList.add('hinting');
+          const star = document.createElement('span');
+          star.className = 'hint-star';
+          star.textContent = '⭐';
+          targetFlower.element.appendChild(star);
+        }
+      }, 5000);
+    }
+
+    // ===== BUTTERFLY SPAWN =====
+    function spawnButterfly(x, y) {
+      const butterfly = document.createElement('div');
+      butterfly.className = 'butterfly-float';
+      butterfly.textContent = '🦋';
+      butterfly.style.left = x + 'px';
+      butterfly.style.top = y + 'px';
+      garden.appendChild(butterfly);
+      setTimeout(() => butterfly.remove(), 1500);
+    }
+
+    // ===== STARS =====
+    function initStars() {
+      starsDisplay.innerHTML = '';
+      for (let i = 1; i <= MAX_NUMBER; i++) {
+        const star = document.createElement('span');
+        star.className = 'star';
+        star.textContent = '⭐';
+        star.dataset.index = i;
+        starsDisplay.appendChild(star);
+      }
+    }
+
+    function earnStar(n) {
+      const star = starsDisplay.querySelector(`[data-index="${n}"]`);
+      if (star) star.classList.add('earned');
+    }
+
+    // ===== FLOWER CREATION =====
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function createFlowers() {
+      garden.innerHTML = '';
+      flowers = [];
+      const shuffledPositions = shuffle(POSITIONS);
+
+      for (let i = 1; i <= MAX_NUMBER; i++) {
+        const pos = shuffledPositions[i - 1];
+        const el = document.createElement('div');
+        el.className = 'flower bud';
+        el.style.left = pos.x + '%';
+        el.style.top = pos.y + '%';
+        el.innerHTML = `
+          <span class="number">${i}</span>
+          <div class="petals">
+            <div class="petal" style="background:${FLOWER_COLORS[i]}"></div>
+            <div class="petal" style="background:${FLOWER_COLORS[i]}"></div>
+            <div class="petal" style="background:${FLOWER_COLORS[i]}"></div>
+            <div class="petal" style="background:${FLOWER_COLORS[i]}"></div>
+            <div class="petal" style="background:${FLOWER_COLORS[i]}"></div>
+          </div>
+        `;
+
+        const flower = { number: i, element: el, state: 'bud' };
+        flowers.push(flower);
+
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          handleTap(flower);
+        });
+        el.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          handleTap(flower);
+        }, { passive: false });
+
+        garden.appendChild(el);
+      }
+    }
+
+    // ===== TAP HANDLER =====
+    function handleTap(flower) {
+      if (gameState !== STATE.PLAYING) return;
+      initAudio();
+      resetHintTimer();
+
+      if (flower.number === currentTarget) {
+        // CORRECT
+        flower.state = 'bloomed';
+        flower.element.classList.remove('bud', 'hinting');
+        const hintStar = flower.element.querySelector('.hint-star');
+        if (hintStar) hintStar.remove();
+
+        flower.element.classList.add('bloomed');
+        flower.element.style.background = `linear-gradient(135deg, ${FLOWER_COLORS[flower.number]}, ${adjustColor(FLOWER_COLORS[flower.number], -20)})`;
+        flower.element.style.borderColor = 'transparent';
+
+        // Sound & speech
+        playCorrect(flower.number - 1);
+        sayNumber(flower.number);
+        if (flower.number > 1 && flower.number % 3 === 0) sayPraise();
+
+        // Butterfly
+        const rect = flower.element.getBoundingClientRect();
+        const gardenRect = garden.getBoundingClientRect();
+        spawnButterfly(rect.left - gardenRect.left + 30, rect.top - gardenRect.top - 10);
+
+        // Star
+        earnStar(flower.number);
+
+        // Advance
+        currentTarget++;
+        nextNumberEl.textContent = currentTarget <= MAX_NUMBER ? currentTarget : '🎉';
+
+        // Check win
+        if (currentTarget > MAX_NUMBER) {
+          triggerWin();
+        } else {
+          resetHintTimer();
+        }
+      } else {
+        // WRONG
+        playWrong();
+        sayTryAgain(currentTarget - 1);
+        flower.element.classList.add('shake');
+        setTimeout(() => flower.element.classList.remove('shake'), 600);
+      }
+    }
+
+    // ===== WIN =====
+    function triggerWin() {
+      gameState = STATE.CELEBRATING;
+      clearTimeout(hintTimer);
+
+      // Sway all flowers
+      flowers.forEach(f => {
+        f.element.classList.remove('bloomed');
+        f.element.classList.add('sway');
+      });
+
+      // Confetti
+      if (!jsConfetti) jsConfetti = new JSConfetti();
+      jsConfetti.addConfetti({
+        emojis: ['🌸', '🦋', '⭐', '🌼', '✨', '🦄', '🧜‍♀️', '🌈'],
+        confettiNumber: 100
+      });
+
+      // Win sound & speech
+      playWin();
+      sayWin();
+
+      // Show celebration overlay with present
+      setTimeout(() => {
+        showPresent();
+        celebration.classList.add('active');
+      }, 600);
+    }
+
+    // ===== PRESENT SYSTEM =====
+    const PRESENTS = [
+      {
+        emoji: '🦄',
+        title: 'A Magical Unicorn!',
+        message: 'This sparkly unicorn is so proud of you, Chloe!',
+        colors: ['#E1BEE7', '#CE93D8', '#F8BBD0', '#F48FB1'],
+        bg: 'linear-gradient(135deg, #F3E5F5, #FCE4EC, #E8F5E9)'
+      },
+      {
+        emoji: '🧜‍♀️',
+        title: 'A Beautiful Mermaid!',
+        message: 'She swam all the way here to say well done, Chloe!',
+        colors: ['#B2EBF2', '#80DEEA', '#B2DFDB', '#80CBC4'],
+        bg: 'linear-gradient(135deg, #E0F7FA, #E0F2F1, #E8F5E9)'
+      },
+      {
+        emoji: '🌈',
+        title: 'A Rainbow!',
+        message: 'You made a rainbow appear! Magic counting, Chloe!',
+        colors: ['#EF5350', '#FF9800', '#FFEB3B', '#4CAF50', '#2196F3', '#9C27B0'],
+        bg: 'linear-gradient(135deg, #FFF3E0, #F3E5F5, #E1F5FE)'
+      },
+      {
+        emoji: '🦄🌈',
+        title: 'A Rainbow Unicorn!',
+        message: 'The rarest unicorn of all came to see you, Chloe!',
+        colors: ['#F48FB1', '#CE93D8', '#90CAF9', '#80CBC4', '#FFF176'],
+        bg: 'linear-gradient(135deg, #FCE4EC, #EDE7F6, #E1F5FE)'
+      },
+      {
+        emoji: '🧜‍♀️✨',
+        title: 'A Sparkly Mermaid Princess!',
+        message: 'She says you count like a real princess, Chloe!',
+        colors: ['#80DEEA', '#CE93D8', '#FFD54F', '#4FC3F7'],
+        bg: 'linear-gradient(135deg, #E0F7FA, #F3E5F5, #FFFDE7)'
+      },
+      {
+        emoji: '🦄⭐',
+        title: 'A Star Unicorn!',
+        message: 'This unicorn grants you a wish! You earned it, Chloe!',
+        colors: ['#FFD54F', '#E1BEE7', '#F8BBD0', '#B3E5FC'],
+        bg: 'linear-gradient(135deg, #FFFDE7, #F3E5F5, #E1F5FE)'
+      }
+    ];
+
+    function showPresent() {
+      const present = PRESENTS[Math.floor(Math.random() * PRESENTS.length)];
+      const presentBox = document.getElementById('present-box');
+      const winStars = document.getElementById('win-stars');
+
+      // Fill win stars
+      winStars.textContent = '⭐'.repeat(MAX_NUMBER > 10 ? 10 : MAX_NUMBER);
+
+      presentBox.innerHTML = `
+        <div class="present-card" style="background: ${present.bg}">
+          <div class="present-emoji">${present.emoji}</div>
+          <div class="present-title">${present.title}</div>
+          <div class="present-message">${present.message}</div>
+        </div>
+      `;
+
+      // Say the present aloud
+      if ('speechSynthesis' in window) {
+        setTimeout(() => {
+          const utter = new SpeechSynthesisUtterance(
+            `And here's a special present for you! ${present.title} ${present.message}`
+          );
+          utter.rate = 0.85;
+          utter.pitch = 1.2;
+          speechSynthesis.speak(utter);
+        }, 2500);
+      }
+    }
+
+    // ===== GAME FLOW =====
+    function startGame() {
+      gameState = STATE.PLAYING;
+      currentTarget = 1;
+      titleScreen.style.display = 'none';
+      celebration.classList.remove('active');
+      gameScreen.classList.add('active');
+      nextNumberEl.textContent = '1';
+      initStars();
+      createFlowers();
+      resetHintTimer();
+      initAudio();
+    }
+
+    function resetGame() {
+      celebration.classList.remove('active');
+      flowers.forEach(f => f.element.classList.remove('sway'));
+      startGame();
+    }
+
+    // ===== UTILITY =====
+    function adjustColor(hex, amount) {
+      const num = parseInt(hex.slice(1), 16);
+      const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+      const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount));
+      const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount));
+      return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
+    }
+
+    // ===== EVENT LISTENERS =====
+    startBtn.addEventListener('click', startGame);
+    startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); }, { passive: false });
+    playAgainBtn.addEventListener('click', resetGame);
+    playAgainBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(); }, { passive: false });
+  </script>
+</body>
+</html>

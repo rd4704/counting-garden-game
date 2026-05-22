@@ -1,0 +1,11 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Open Counting Garden",
+			"type": "shell",
+			"command": "open index.html",
+			"isBackground": false
+		}
+	]
+}
